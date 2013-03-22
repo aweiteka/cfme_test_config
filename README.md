@@ -1,6 +1,6 @@
-## CloudForms ManagementEngine files
+## CFME Test Configuration
 
-This is a collection of files needed to support CloudForms ME testing.
+This is a collection of configuration files and setup scripts needed to support CFME testing.
 
  * vmdb.yml config files
  * reports
