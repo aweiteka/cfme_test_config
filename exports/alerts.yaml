@@ -1,0 +1,18 @@
+---
+- MiqAlert:
+    guid: f6a5f0b4-9576-11e2-b824-001a4a10566e
+    description: Hello, world
+    options:
+      :notifications:
+        :delay_next_evaluation: 600
+        :automate:
+          :event_name: Hello, world! Tag... you're it
+    db: ExtManagementSystem
+    expression:
+      :eval_method: !binary |-
+        bm90aGluZw==
+      :mode: !binary |-
+        aW50ZXJuYWw=
+      :options: {}
+    responds_to_events: assigned_company_tag
+    enabled: true

@@ -1,0 +1,76 @@
+---
+- MiqPolicySet:
+    name: 50ba5594-9618-11e2-b494-001a4a10566e
+    description: QE Automation test
+    set_type: MiqPolicySet
+    guid: 50ba5594-9618-11e2-b494-001a4a10566e
+    read_only: 
+    set_data: 
+    mode: 
+    owner_type: 
+    owner_id: 
+    !binary "TWlxUG9saWN5":
+    - name: bdb9c8ec-9617-11e2-b494-001a4a10566e
+      description: tagged
+      expression: 
+      towhat: Vm
+      guid: bdb9c8ec-9617-11e2-b494-001a4a10566e
+      created_by: admin
+      updated_by: admin
+      notes: Basic policy to get the thing working
+      active: true
+      mode: control
+      !binary "TWlxUG9saWN5Q29udGVudA==":
+      - qualifier: success
+        success_sequence: 3
+        success_synchronous: false
+        !binary "TWlxRXZlbnQ=":
+          name: assigned_company_tag
+          description: Tag Complete
+          guid: e3eb622a-8503-11e2-9781-001a4a10566e
+          event_type: Default
+          definition: 
+          default: 
+          enabled: 
+        !binary "TWlxQWN0aW9u":
+          name: audit
+          description: Generate Audit Event
+          guid: d589b4f2-8503-11e2-9781-001a4a10566e
+          action_type: default
+          options: 
+      - qualifier: success
+        success_sequence: 2
+        success_synchronous: false
+        !binary "TWlxRXZlbnQ=":
+          name: assigned_company_tag
+          description: Tag Complete
+          guid: e3eb622a-8503-11e2-9781-001a4a10566e
+          event_type: Default
+          definition: 
+          default: 
+          enabled: 
+        !binary "TWlxQWN0aW9u":
+          name: log
+          description: Generate log message
+          guid: d58f3792-8503-11e2-9781-001a4a10566e
+          action_type: default
+          options: 
+      - qualifier: success
+        success_sequence: 1
+        success_synchronous: false
+        !binary "TWlxRXZlbnQ=":
+          name: assigned_company_tag
+          description: Tag Complete
+          guid: e3eb622a-8503-11e2-9781-001a4a10566e
+          event_type: Default
+          definition: 
+          default: 
+          enabled: 
+        !binary "TWlxQWN0aW9u":
+          name: 2ad8edda-9565-11e2-b824-001a4a10566e
+          description: send an email
+          guid: 2ad8edda-9565-11e2-b824-001a4a10566e
+          action_type: email
+          options:
+            :to: root@localhost
+      !binary "Q29uZGl0aW9u": []

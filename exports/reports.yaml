@@ -1,0 +1,257 @@
+---
+- title: Archived VMs
+  rpt_group: Custom
+  rpt_type: Custom
+  priority: 
+  db: Vm
+  cols:
+  - name
+  - v_is_a_template
+  - is_evm_appliance
+  - location
+  - num_cpu
+  - num_disks
+  - num_hard_disks
+  - os_image_name
+  - v_owning_cluster
+  - v_owning_datacenter
+  - v_owning_folder
+  - v_owning_blue_folder
+  - host_name
+  - platform
+  - retired
+  - template
+  - type
+  include: {}
+  col_order:
+  - name
+  - v_is_a_template
+  - is_evm_appliance
+  - location
+  - num_cpu
+  - num_disks
+  - num_hard_disks
+  - os_image_name
+  - v_owning_cluster
+  - v_owning_datacenter
+  - v_owning_folder
+  - v_owning_blue_folder
+  - host_name
+  - platform
+  - retired
+  - template
+  - type
+  headers:
+  - !binary |-
+    TmFtZQ==
+  - !binary |-
+    SXMgYSBUZW1wbGF0ZQ==
+  - !binary |-
+    SXMgYW4gRVZNIEFwcGxpYW5jZT8=
+  - !binary |-
+    TG9jYXRpb24=
+  - !binary |-
+    TnVtYmVyIG9mIENQVXM=
+  - !binary |-
+    TnVtYmVyIG9mIERpc2tz
+  - !binary |-
+    TnVtYmVyIG9mIEhhcmQgRGlza3M=
+  - !binary |-
+    T1MgTmFtZQ==
+  - !binary |-
+    UGFyZW50IENsdXN0ZXI=
+  - !binary |-
+    UGFyZW50IERhdGFjZW50ZXI=
+  - !binary |-
+    UGFyZW50IEZvbGRlciAoSG9zdHMgJiBDbHVzdGVycyk=
+  - !binary |-
+    UGFyZW50IEZvbGRlciAoVk1zICYgVGVtcGxhdGVzKQ==
+  - !binary |-
+    UGFyZW50IEhvc3Q=
+  - !binary |-
+    UGxhdGZvcm0=
+  - !binary |-
+    UmV0aXJlZA==
+  - !binary |-
+    VGVtcGxhdGU=
+  - !binary |-
+    VHlwZQ==
+  conditions: !ruby/object:MiqExpression
+    exp:
+      !binary "PQ==":
+        !binary "ZmllbGQ=": Vm-archived
+        !binary "dmFsdWU=": 'true'
+    context_type: 
+  order: !binary |-
+    QXNjZW5kaW5n
+  sortby: 
+  group: 
+  graph: 
+  dims: 
+  filename: 
+  file_mtime: 
+  categories: []
+  timeline: 
+  template_type: report
+  where_clause: 
+  db_options: {}
+  generate_cols: 
+  generate_rows: 
+  col_formats:
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  tz: 
+  time_profile_id: 
+  display_filter: 
+  col_options: {}
+  rpt_options:
+    :pdf:
+      :page_size: !binary |-
+        VVMtTGV0dGVy
+    :queue_timeout: 
+  miq_group_id: 1
+  user_id: 1
+  !binary "bWVudV9uYW1l": Archived VMs
+- title: Orphaned VMs
+  rpt_group: Custom
+  rpt_type: Custom
+  priority: 
+  db: Vm
+  cols:
+  - name
+  - v_is_a_template
+  - is_evm_appliance
+  - location
+  - num_cpu
+  - num_disks
+  - num_hard_disks
+  - os_image_name
+  - v_owning_cluster
+  - v_owning_datacenter
+  - v_owning_folder
+  - v_owning_blue_folder
+  - host_name
+  - platform
+  - retired
+  - template
+  - type
+  include: {}
+  col_order:
+  - name
+  - v_is_a_template
+  - is_evm_appliance
+  - location
+  - num_cpu
+  - num_disks
+  - num_hard_disks
+  - os_image_name
+  - v_owning_cluster
+  - v_owning_datacenter
+  - v_owning_folder
+  - v_owning_blue_folder
+  - host_name
+  - platform
+  - retired
+  - template
+  - type
+  headers:
+  - !binary |-
+    TmFtZQ==
+  - !binary |-
+    SXMgYSBUZW1wbGF0ZQ==
+  - !binary |-
+    SXMgYW4gRVZNIEFwcGxpYW5jZT8=
+  - !binary |-
+    TG9jYXRpb24=
+  - !binary |-
+    TnVtYmVyIG9mIENQVXM=
+  - !binary |-
+    TnVtYmVyIG9mIERpc2tz
+  - !binary |-
+    TnVtYmVyIG9mIEhhcmQgRGlza3M=
+  - !binary |-
+    T1MgTmFtZQ==
+  - !binary |-
+    UGFyZW50IENsdXN0ZXI=
+  - !binary |-
+    UGFyZW50IERhdGFjZW50ZXI=
+  - !binary |-
+    UGFyZW50IEZvbGRlciAoSG9zdHMgJiBDbHVzdGVycyk=
+  - !binary |-
+    UGFyZW50IEZvbGRlciAoVk1zICYgVGVtcGxhdGVzKQ==
+  - !binary |-
+    UGFyZW50IEhvc3Q=
+  - !binary |-
+    UGxhdGZvcm0=
+  - !binary |-
+    UmV0aXJlZA==
+  - !binary |-
+    VGVtcGxhdGU=
+  - !binary |-
+    VHlwZQ==
+  conditions: !ruby/object:MiqExpression
+    exp:
+      !binary "PQ==":
+        !binary "ZmllbGQ=": Vm-orphaned
+        !binary "dmFsdWU=": 'true'
+    context_type: 
+  order: !binary |-
+    QXNjZW5kaW5n
+  sortby: 
+  group: 
+  graph: 
+  dims: 
+  filename: 
+  file_mtime: 
+  categories: []
+  timeline: 
+  template_type: report
+  where_clause: 
+  db_options: {}
+  generate_cols: 
+  generate_rows: 
+  col_formats:
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  tz: 
+  time_profile_id: 
+  display_filter: 
+  col_options: {}
+  rpt_options:
+    :pdf:
+      :page_size: !binary |-
+        VVMtTGV0dGVy
+    :queue_timeout: 
+  miq_group_id: 1
+  user_id: 1
+  !binary "bWVudV9uYW1l": Orphaned VMs-custom

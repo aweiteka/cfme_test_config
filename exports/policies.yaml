@@ -1,0 +1,352 @@
+---
+- MiqPolicy:
+    name: 5eef835e-957e-11e2-b824-001a4a10566e
+    description: Guest actions
+    expression: 
+    towhat: Vm
+    guid: 5eef835e-957e-11e2-b824-001a4a10566e
+    created_by: admin
+    updated_by: admin
+    notes: 
+    active: true
+    mode: control
+    !binary "TWlxUG9saWN5Q29udGVudA==":
+    - qualifier: success
+      success_sequence: 2
+      success_synchronous: false
+      !binary "TWlxRXZlbnQ=":
+        name: vm_discover
+        description: VM Discovery
+        guid: e41640da-8503-11e2-9781-001a4a10566e
+        event_type: Default
+        definition: 
+        default: 
+        enabled: 
+      !binary "TWlxQWN0aW9u":
+        name: 2ad8edda-9565-11e2-b824-001a4a10566e
+        description: send an email
+        guid: 2ad8edda-9565-11e2-b824-001a4a10566e
+        action_type: email
+        options:
+          :to: root@localhost
+    - qualifier: success
+      success_sequence: 1
+      success_synchronous: false
+      !binary "TWlxRXZlbnQ=":
+        name: vm_discover
+        description: VM Discovery
+        guid: e41640da-8503-11e2-9781-001a4a10566e
+        event_type: Default
+        definition: 
+        default: 
+        enabled: 
+      !binary "TWlxQWN0aW9u":
+        name: 8e8652ee-9571-11e2-b824-001a4a10566e
+        description: tag guest
+        guid: 8e8652ee-9571-11e2-b824-001a4a10566e
+        action_type: tag
+        options:
+          :tags:
+          - /managed/qe_automation/guest
+    !binary "Q29uZGl0aW9u": []
+- MiqPolicy:
+    name: 0152b650-9572-11e2-b824-001a4a10566e
+    description: Initial host actions
+    expression: 
+    towhat: Host
+    guid: 0152b650-9572-11e2-b824-001a4a10566e
+    created_by: admin
+    updated_by: admin
+    notes: 
+    active: true
+    mode: control
+    !binary "TWlxUG9saWN5Q29udGVudA==":
+    - qualifier: success
+      success_sequence: 1
+      success_synchronous: false
+      !binary "TWlxRXZlbnQ=":
+        name: host_connect
+        description: Host Connect
+        guid: e3b08b50-8503-11e2-9781-001a4a10566e
+        event_type: Default
+        definition: 
+        default: 
+        enabled: 
+      !binary "TWlxQWN0aW9u":
+        name: 39210e6e-9587-11e2-b824-001a4a10566e
+        description: Provision guest
+        guid: 39210e6e-9587-11e2-b824-001a4a10566e
+        action_type: custom_automation
+        options:
+          :ae_message: create
+          :ae_request: /System/Request/UI_PROVISION_INFO
+          :ae_hash:
+            foo: bar
+            user: aweiteka
+            name: myVM-name
+    - qualifier: success
+      success_sequence: 1
+      success_synchronous: false
+      !binary "TWlxRXZlbnQ=":
+        name: assigned_company_tag
+        description: Tag Complete
+        guid: e3eb622a-8503-11e2-9781-001a4a10566e
+        event_type: Default
+        definition: 
+        default: 
+        enabled: 
+      !binary "TWlxQWN0aW9u":
+        name: 39210e6e-9587-11e2-b824-001a4a10566e
+        description: Provision guest
+        guid: 39210e6e-9587-11e2-b824-001a4a10566e
+        action_type: custom_automation
+        options:
+          :ae_message: create
+          :ae_request: /System/Request/UI_PROVISION_INFO
+          :ae_hash:
+            foo: bar
+            user: aweiteka
+            name: myVM-name
+    - qualifier: success
+      success_sequence: 5
+      success_synchronous: false
+      !binary "TWlxRXZlbnQ=":
+        name: host_add_to_cluster
+        description: Host Added to Cluster
+        guid: e3bbdc80-8503-11e2-9781-001a4a10566e
+        event_type: Default
+        definition: 
+        default: 
+        enabled: 
+      !binary "TWlxQWN0aW9u":
+        name: host_analyze
+        description: Initiate SmartState Analysis for Host
+        guid: d5a19dd8-8503-11e2-9781-001a4a10566e
+        action_type: default
+        options: 
+    - qualifier: success
+      success_sequence: 4
+      success_synchronous: false
+      !binary "TWlxRXZlbnQ=":
+        name: host_add_to_cluster
+        description: Host Added to Cluster
+        guid: e3bbdc80-8503-11e2-9781-001a4a10566e
+        event_type: Default
+        definition: 
+        default: 
+        enabled: 
+      !binary "TWlxQWN0aW9u":
+        name: 2ad8edda-9565-11e2-b824-001a4a10566e
+        description: send an email
+        guid: 2ad8edda-9565-11e2-b824-001a4a10566e
+        action_type: email
+        options:
+          :to: root@localhost
+    - qualifier: success
+      success_sequence: 3
+      success_synchronous: false
+      !binary "TWlxRXZlbnQ=":
+        name: host_add_to_cluster
+        description: Host Added to Cluster
+        guid: e3bbdc80-8503-11e2-9781-001a4a10566e
+        event_type: Default
+        definition: 
+        default: 
+        enabled: 
+      !binary "TWlxQWN0aW9u":
+        name: 830a767a-9571-11e2-b824-001a4a10566e
+        description: Tag host
+        guid: 830a767a-9571-11e2-b824-001a4a10566e
+        action_type: tag
+        options:
+          :tags:
+          - /managed/qe_automation/host
+    - qualifier: success
+      success_sequence: 2
+      success_synchronous: false
+      !binary "TWlxRXZlbnQ=":
+        name: host_add_to_cluster
+        description: Host Added to Cluster
+        guid: e3bbdc80-8503-11e2-9781-001a4a10566e
+        event_type: Default
+        definition: 
+        default: 
+        enabled: 
+      !binary "TWlxQWN0aW9u":
+        name: audit
+        description: Generate Audit Event
+        guid: d589b4f2-8503-11e2-9781-001a4a10566e
+        action_type: default
+        options: 
+    - qualifier: success
+      success_sequence: 1
+      success_synchronous: false
+      !binary "TWlxRXZlbnQ=":
+        name: host_add_to_cluster
+        description: Host Added to Cluster
+        guid: e3bbdc80-8503-11e2-9781-001a4a10566e
+        event_type: Default
+        definition: 
+        default: 
+        enabled: 
+      !binary "TWlxQWN0aW9u":
+        name: 39210e6e-9587-11e2-b824-001a4a10566e
+        description: Provision guest
+        guid: 39210e6e-9587-11e2-b824-001a4a10566e
+        action_type: custom_automation
+        options:
+          :ae_message: create
+          :ae_request: /System/Request/UI_PROVISION_INFO
+          :ae_hash:
+            foo: bar
+            user: aweiteka
+            name: myVM-name
+    !binary "Q29uZGl0aW9u":
+    - name: 6368be12-958a-11e2-b824-001a4a10566e
+      description: ! 'Tagged: QE Automation Host'
+      modifier: allow
+      expression: !ruby/object:MiqExpression
+        exp:
+          !binary "Q09OVEFJTlM=":
+            !binary "dGFn": Host.managed-qe_automation
+            !binary "dmFsdWU=": host
+        context_type: 
+      towhat: Host
+      file_mtime: 
+      guid: 6368be12-958a-11e2-b824-001a4a10566e
+      filename: 
+      applies_to_exp: 
+      miq_policy_id: 
+      notes: 
+- MiqPolicy:
+    name: bffaa568-9581-11e2-b824-001a4a10566e
+    description: Snapshot and analyze after Start
+    expression: 
+    towhat: Vm
+    guid: bffaa568-9581-11e2-b824-001a4a10566e
+    created_by: admin
+    updated_by: admin
+    notes: 
+    active: true
+    mode: control
+    !binary "TWlxUG9saWN5Q29udGVudA==":
+    - qualifier: success
+      success_sequence: 3
+      success_synchronous: false
+      !binary "TWlxRXZlbnQ=":
+        name: vm_start
+        description: VM Power On
+        guid: e41f6c6e-8503-11e2-9781-001a4a10566e
+        event_type: Default
+        definition: 
+        default: 
+        enabled: 
+      !binary "TWlxQWN0aW9u":
+        name: vm_analyze
+        description: Initiate SmartState Analysis for VM
+        guid: d597b2aa-8503-11e2-9781-001a4a10566e
+        action_type: default
+        options: 
+    - qualifier: success
+      success_sequence: 2
+      success_synchronous: false
+      !binary "TWlxRXZlbnQ=":
+        name: vm_start
+        description: VM Power On
+        guid: e41f6c6e-8503-11e2-9781-001a4a10566e
+        event_type: Default
+        definition: 
+        default: 
+        enabled: 
+      !binary "TWlxQWN0aW9u":
+        name: 2ad8edda-9565-11e2-b824-001a4a10566e
+        description: send an email
+        guid: 2ad8edda-9565-11e2-b824-001a4a10566e
+        action_type: email
+        options:
+          :to: root@localhost
+    - qualifier: success
+      success_sequence: 1
+      success_synchronous: false
+      !binary "TWlxRXZlbnQ=":
+        name: vm_start
+        description: VM Power On
+        guid: e41f6c6e-8503-11e2-9781-001a4a10566e
+        event_type: Default
+        definition: 
+        default: 
+        enabled: 
+      !binary "TWlxQWN0aW9u":
+        name: 8e8652ee-9571-11e2-b824-001a4a10566e
+        description: tag guest
+        guid: 8e8652ee-9571-11e2-b824-001a4a10566e
+        action_type: tag
+        options:
+          :tags:
+          - /managed/qe_automation/guest
+    !binary "Q29uZGl0aW9u": []
+- MiqPolicy:
+    name: bdb9c8ec-9617-11e2-b494-001a4a10566e
+    description: tagged
+    expression: 
+    towhat: Vm
+    guid: bdb9c8ec-9617-11e2-b494-001a4a10566e
+    created_by: admin
+    updated_by: admin
+    notes: Basic policy to get the thing working
+    active: true
+    mode: control
+    !binary "TWlxUG9saWN5Q29udGVudA==":
+    - qualifier: success
+      success_sequence: 3
+      success_synchronous: false
+      !binary "TWlxRXZlbnQ=":
+        name: assigned_company_tag
+        description: Tag Complete
+        guid: e3eb622a-8503-11e2-9781-001a4a10566e
+        event_type: Default
+        definition: 
+        default: 
+        enabled: 
+      !binary "TWlxQWN0aW9u":
+        name: audit
+        description: Generate Audit Event
+        guid: d589b4f2-8503-11e2-9781-001a4a10566e
+        action_type: default
+        options: 
+    - qualifier: success
+      success_sequence: 2
+      success_synchronous: false
+      !binary "TWlxRXZlbnQ=":
+        name: assigned_company_tag
+        description: Tag Complete
+        guid: e3eb622a-8503-11e2-9781-001a4a10566e
+        event_type: Default
+        definition: 
+        default: 
+        enabled: 
+      !binary "TWlxQWN0aW9u":
+        name: log
+        description: Generate log message
+        guid: d58f3792-8503-11e2-9781-001a4a10566e
+        action_type: default
+        options: 
+    - qualifier: success
+      success_sequence: 1
+      success_synchronous: false
+      !binary "TWlxRXZlbnQ=":
+        name: assigned_company_tag
+        description: Tag Complete
+        guid: e3eb622a-8503-11e2-9781-001a4a10566e
+        event_type: Default
+        definition: 
+        default: 
+        enabled: 
+      !binary "TWlxQWN0aW9u":
+        name: 2ad8edda-9565-11e2-b824-001a4a10566e
+        description: send an email
+        guid: 2ad8edda-9565-11e2-b824-001a4a10566e
+        action_type: email
+        options:
+          :to: root@localhost
+    !binary "Q29uZGl0aW9u": []
