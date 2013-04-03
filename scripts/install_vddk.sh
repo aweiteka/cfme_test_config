@@ -2,7 +2,13 @@
 
 # run unattended vddk install and reboot
 
-VDDK_URL=${1:-"http://qeblade5.rhq.lab.eng.bos.redhat.com/isos/VMware-vix-disklib-1.2.2-702422.x86_64.tar"}
+if [ -z $1 ] ; then
+   echo "Usage: ./`basename $0` <http://localhost/vddk.tar>"
+   echo "Argument missing: URL required for VMware-vix-disklib-1.2.2-702422.x86_64.tar"
+   exit
+fi
+
+VDDK_URL=$1
 VDDK_FILE=VMware-vix-disklib.tar
 
 curl -o $VDDK_FILE --url $VDDK_URL --insecure --fail
