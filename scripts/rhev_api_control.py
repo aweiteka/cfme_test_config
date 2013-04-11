@@ -7,13 +7,26 @@
 # * TODO: import OVF and convert to template
 
 from optparse import OptionParser
+import sys
 import json
 import time
 import requests
 import urllib
+import logging
 
 
 class Connect(object):
+    def __init__(self):
+        logfile = "rhev_api.log"
+        logger = logging.getLogger()
+        fh = logging.FileHandler(logfile, mode='w')
+        formatter = logging.Formatter("%(asctime)s %(levelname)s: %(message)s", "%b %d %H:%M:%S")
+        fh.setFormatter(formatter)
+        if self.debug:
+            logger.setLevel(logging.DEBUG)
+        else:
+            logger.setLevel(logging.INFO)
+        logger.addHandler(fh)
 
     @property
     def opts(self):
@@ -24,7 +37,8 @@ class Connect(object):
         -a <create|start|stop|status>
         -u <rhevm_user>
         -p <rhevm_passwd>
-        [-t <template_name>]"""
+        [-t <template_name>]
+        [-d]"""
         parser = OptionParser(usage=usage)
         parser.add_option("-o", "--host", dest="host",
                           help="RHEVM host in the form of https://localhost (without '/api')", 
@@ -41,6 +55,9 @@ class Connect(object):
                           help="RHEVM password", metavar="USER")
         parser.add_option("-p", "--pass", dest="passwd",
                           help="RHEVM password", metavar="PASS")
+        parser.add_option("-d", "--debug",
+                          action="store_true", dest="debug",
+                          help="Turn on debug-level logging")
 
         (options, args) = parser.parse_args()
         return options
@@ -57,6 +74,10 @@ class Connect(object):
     def passwd(self):
         return self.opts.passwd
 
+    @property
+    def debug(self):
+        return self.opts.debug
+
     def get(self, url):
         """Generic get request
         """
@@ -64,6 +85,7 @@ class Connect(object):
                          headers=self.headers,
                          auth=(self.user, self.passwd), 
                          verify=False)
+        logging.debug(r.text)
         if not self.success(r):
             return False
         else:
@@ -77,6 +99,7 @@ class Connect(object):
                           auth=(self.user, self.passwd),
                           verify=False,
                           data=payload)
+        logging.debug(r.text)
         if not self.success(r):
             return False
         else:
@@ -204,18 +227,21 @@ class Guest(Connect):
         return self.post(url, self.null_param)
 
 
-vm = Guest()
+def main():
+    vm = Guest()
 
-if vm.action == "status":
-    print vm.name
-    print vm.id
-    print vm.status
-    if vm.status == "up":
-        print vm.ip_addr
-elif vm.action == "start":
-    print vm.start()
-    # TODO: loop until status is up, print ip addr
-elif vm.action == "stop":
-    print vm.stop()
+    if vm.action == "status":
+        logging.info("Guest name: " + vm.name)
+        logging.info("Guest ID: " + vm.id)
+        print vm.status
+        if vm.status == "up":
+            print vm.ip_addr
+    elif vm.action == "start":
+        logging.info(vm.start())
+        # TODO: loop until status is up, print ip addr
+    elif vm.action == "stop":
+        logging.info(vm.stop())
 
 
+if __name__ == '__main__':
+    main()
