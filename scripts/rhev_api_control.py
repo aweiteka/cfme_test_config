@@ -30,16 +30,7 @@ class Connect(object):
 
     @property
     def opts(self):
-        # TODO: validate args
-        usage = """
-    %prog -o <rhevm_host>
-        -v <vm_name>
-        -a <create|start|stop|status>
-        -u <rhevm_user>
-        -p <rhevm_passwd>
-        [-t <template_name>]
-        [-d]"""
-        parser = OptionParser(usage=usage)
+        parser = OptionParser(usage=self.usage)
         parser.add_option("-o", "--host", dest="host",
                           help="RHEVM host in the form of https://localhost (without '/api')", 
                           metavar="HOST")
@@ -48,8 +39,9 @@ class Connect(object):
                           help="template name", metavar="TEMP_NAME")
         parser.add_option("-v", "--vm_name", dest="vm_name", 
                           help="VM name", metavar="VM_NAME")
-        parser.add_option("-a", "--action", dest="action", 
-                          help="the action you want to do. create, start, stop, status", 
+        parser.add_option("-a", "--action", dest="action",
+                          choices=["create", "add_nic", "start", "stop", "status"],
+                          help="the action you want to do. create, add_nic, start, stop, status", 
                           metavar="ACTION")
         parser.add_option("-u", "--user", dest="user",
                           help="RHEVM password", metavar="USER")
@@ -60,7 +52,27 @@ class Connect(object):
                           help="Turn on debug-level logging")
 
         (options, args) = parser.parse_args()
+        self.validate_args(parser, options)
         return options
+
+    def validate_args(self, parser, options):
+        mandatories = ['host', 'vm_name', 'action', 'user', 'passwd']
+        for m in mandatories:
+            if not options.__dict__[m]:
+                parser.error("Required option missing: " + m)
+        if options.action in "create" and not parser.has_option("-t"):
+            parser.error("-t <template> required")
+
+    @property
+    def usage(self):
+        return """
+    %prog -o <rhevm_host>
+        -v <vm_name>
+        -a <create|add_nic|start|stop|status>
+        -u <rhevm_user>
+        -p <rhevm_passwd>
+        [-t <template_name>]
+        [-d]"""
 
     @property
     def host(self):
@@ -117,13 +129,27 @@ class Connect(object):
         return self.host + "/api/vms?search=" + urllib.quote('name=') + self.vm_name
 
     @property
-    def create_vm_params(self):
+    def post_url(self):
+        return self.host + "/api/vms"
+
+    @property
+    def create_vm_param(self):
         """Post request payload for creating vm
         """
-        cluster = "iscsi"
-        params = "<vm><name>%s</name><cluster><name>%s</name></cluster><action>start</action><template><name>%s</name></template></vm>" % \
-            (self.vm_name, cluster, self.template)
-        return params
+        param = """\
+<vm><name>{name}</name><memory>{memory}</memory><cpu><topology cores='{cpus}' sockets='1'/></cpu><cluster><name>{cluster}</name></cluster><action>start</action><template><name>{template}</name></template></vm>"""
+        return param.format(name=self.vm_name, 
+                            memory="6442450944", # bytes
+                            cpus="4", 
+                            cluster="iscsi", 
+                            template=self.template)
+
+    @property
+    def add_nic_param(self):
+        """Post request payload for adding a NIC
+        """
+        network = "rhevm"
+        return "<nic><name>eth0</name><network><name>%s</name></network></nic>" % network
 
     @property
     def null_param(self):
@@ -174,6 +200,13 @@ class Guest(Connect):
         return r['vms'][0]['id']
 
     @property
+    def nic_url(self):
+        """Guest control NIC URL
+        """
+        r = self.get(self.search_vm_url)
+        return r['vms'][0]['links'][1]['href']
+
+    @property
     def start_url(self):
         """Guest start/power on URL
         """
@@ -182,7 +215,7 @@ class Guest(Connect):
 
     @property
     def stop_url(self):
-        """Guest start/power on URL
+        """Guest stop on URL
         """
         r = self.get(self.search_vm_url)
         return r['vms'][0]['actions']['links'][5]['href']
@@ -191,9 +224,17 @@ class Guest(Connect):
     def ip_addr(self):
         """Guest IP address
         """
-        # FIXME: handle missing key error when guest down
         r = self.get(self.search_vm_url)
-        return r['vms'][0]['guestInfo']['ips']['ips'][0]['address']
+        if "guestInfo" in r['vms'][0]:
+            return r['vms'][0]['guestInfo']['ips']['ips'][0]['address']
+
+    def print_ip(self):
+        """Print IP if not None
+        """
+        ip = vm.ip_addr
+        if ip is not None:
+            logging.info("IP: " + ip)
+            return ip
 
     @property
     def status(self):
@@ -218,6 +259,13 @@ class Guest(Connect):
         else:
             return results.status_code
 
+    def new_vm(self):
+        return self.post(self.post_url, self.create_vm_param)
+
+    def add_nic(self):
+        url = self.host + self.nic_url
+        return self.post(url, self.add_nic_param)
+
     def start(self):
         url = self.host + self.start_url
         return self.post(url, self.null_param)
@@ -230,18 +278,25 @@ class Guest(Connect):
 def main():
     vm = Guest()
 
-    if vm.action == "status":
+    if vm.action == "create":
+        logging.info(vm.new_vm())
+        # TODO: check for nic
+    elif vm.action == "add_nic":
+        logging.info(vm.add_nic())
+    elif vm.action == "status":
         logging.info("Guest name: " + vm.name)
         logging.info("Guest ID: " + vm.id)
         print vm.status
         if vm.status == "up":
-            print vm.ip_addr
+            vm.print_ip()
     elif vm.action == "start":
         logging.info(vm.start())
         # TODO: loop until status is up, print ip addr
+        if vm.status == "up":
+            vm.print_ip()
     elif vm.action == "stop":
         logging.info(vm.stop())
-
+        # TODO: validate stop
 
 if __name__ == '__main__':
     main()
