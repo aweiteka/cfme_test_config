@@ -176,7 +176,7 @@ class Connect(object):
         """
         param = """\
 <vm><name>{name}</name><memory>{memory}</memory><cpu><topology cores='{cpus}' sockets='1'/></cpu><cluster><name>{cluster}</name></cluster><action>start</action><template><name>{template}</name></template></vm>"""
-        return param.format(name=self.vm_name
+        return param.format(name=self.vm_name,
                             # in bytes
                             memory="6442450944",
                             cpus="4",
