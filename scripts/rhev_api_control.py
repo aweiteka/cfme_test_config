@@ -305,15 +305,15 @@ class Guest(Connect):
 
     def create_vm_from_template(self):
         self.post(self.post_url, self.create_vm_param)
-        while not vm.verify("create"):
+        while not self.verify("create"):
             pass
         else:
-            vm.add_nic()
-        vm.start()
-        while not vm.verify("up"):
+            self.add_nic()
+        self.start()
+        while not self.verify("up"):
             pass
         else:
-            vm.print_ip()
+            self.print_ip()
 
     def add_nic(self):
         url = self.host + self.nic_url
