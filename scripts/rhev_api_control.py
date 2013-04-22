@@ -7,8 +7,12 @@
 # * get status and return IP address of running guest
 
 # TODO:
-# * filter so less data returned in GET requests
+# * support log filename option with default
+# * confirm status is 'up' before powering down
+# * confirm status is 'down' before powering up
 # * remove VM
+# * support action list so user is in control of flow
+#   e.g. -a 'import,new_vm,add_nic,start'
 
 from optparse import OptionParser
 import sys
@@ -46,10 +50,10 @@ class Connect(object):
         parser.add_option("-v", "--vm_name", dest="vm_name",
                           help="VM name", metavar="VM_NAME")
         parser.add_option("-a", "--action", dest="action",
-                          choices=["create", "add_nic", "start", "stop",
+                          choices=["import", "new_vm", "add_nic", "start", "stop",
                                    "status"],
-                          help="the action you want to do. create, add_nic, \
-                                start, stop, status",
+                          help="the action you want to do. import, new_vm, \
+                                add_nic, start, stop, status",
                           metavar="ACTION")
         parser.add_option("-u", "--user", dest="user",
                           help="RHEVM username", metavar="USER")
@@ -68,22 +72,24 @@ class Connect(object):
         for m in mandatories:
             if not options.__dict__[m]:
                 parser.error("Required option missing: " + m)
-        if options.action in "create" and not parser.has_option("-t"):
+        if options.action in "new_vm" and not parser.has_option("-t"):
             parser.error("-t <template> required")
 
     @property
     def usage(self):
         return """
     %prog -o <rhevm_host>
-        -a <create|add_nic|start|stop|status>
+        -a <import|new_vm|add_nic|start|stop|status>
         -v <vm_name>
         [-t <template_name>]
         -u <rhevm_user>
         -p <rhevm_passwd>
         [-d]
 
-   Action 'create' will create <vm_name> from <template_name>, add a NIC
-   on default RHEVM network, start guest and return IP address when running."""
+   Action 'new_vm' will create <vm_name> from <template_name>, add a NIC
+   on default RHEVM network, start guest and return IP address when running.
+   
+   Action 'import' will import OVF template from export domain."""
 
     @property
     def host(self):
@@ -115,7 +121,7 @@ class Connect(object):
             if self.success(r):
                 j = r.json
                 logging.debug(self.pretty_json(j))
-                assert len(j['vms']) == 1, "Unexpected number of VMs returned in search"
+                #assert len(j['vms']) == 1, "Unexpected number of VMs returned in search"
                 return j
         except KeyError as e:
             logging.exception("No VMs reaturned in search. Broaden vm_name with wildcard '-v %s*' and retry?" % (self.vm_name))
@@ -134,6 +140,7 @@ class Connect(object):
                               verify=False,
                               data=payload)
             if self.success(r):
+                print r.request
                 j = r.json
                 logging.debug(self.pretty_json(j))
                 return j
@@ -162,15 +169,29 @@ class Connect(object):
         return h
 
     @property
-    def search_vm_url(self):
+    def storage_domains_search_url(self):
+        return self.host + "/api/storagedomains?search" + urllib.quote('name=') + "export"
+
+    @property
+    def vm_search_url(self):
         return self.host + "/api/vms?search=" + urllib.quote('name=') + self.vm_name
 
     @property
-    def post_url(self):
+    def vm_post_url(self):
         return self.host + "/api/vms"
 
     @property
-    def create_vm_param(self):
+    def import_template_param(self):
+        """Post request payload for importing template from export domain
+        """
+        # TODO: query storage domains and clusters
+        param = """\
+<action><storage_domain><name>{storage_domain}</name></storage_domain><cluster><name>{cluster}</name></cluster></action>"""
+        return param.format(storage_domain="iscsi_data",
+                            cluster="iscsi")
+
+    @property
+    def new_vm_param(self):
         # FIXME: add params for memory/cpus?
         """Post request payload for creating vm
         """
@@ -215,35 +236,51 @@ class Guest(Connect):
     def name(self):
         """Guest name
         """
-        r = self.get(self.search_vm_url)
+        r = self.get(self.vm_search_url)
         return r['vms'][0]['name']
+
+    @property
+    def list_templates_url(self):
+        """URL to list templates in export domain
+        """
+        r = self.get(self.storage_domains_search_url)
+        return self.host + r['storageDomains'][0]['links'][1]['href']
+
+    @property
+    def import_template_url(self):
+        """Import template URL from export domain
+        """
+        r = self.get(self.list_templates_url)
+        for template in r['templates']:
+            if self.template in template['name']:
+                return self.host + template['actions']['links'][0]['href']
 
     @property
     def nic_url(self):
         """Guest control NIC URL
         """
-        r = self.get(self.search_vm_url)
-        return r['vms'][0]['links'][1]['href']
+        r = self.get(self.vm_search_url)
+        return self.host + r['vms'][0]['links'][1]['href']
 
     @property
     def start_url(self):
         """Guest start/power on URL
         """
-        r = self.get(self.search_vm_url)
-        return r['vms'][0]['actions']['links'][4]['href']
+        r = self.get(self.vm_search_url)
+        return self.host + r['vms'][0]['actions']['links'][4]['href']
 
     @property
     def stop_url(self):
         """Guest stop on URL
         """
-        r = self.get(self.search_vm_url)
-        return r['vms'][0]['actions']['links'][5]['href']
+        r = self.get(self.vm_search_url)
+        return self.host + r['vms'][0]['actions']['links'][5]['href']
 
     @property
     def ip_addr(self):
         """Guest IP address
         """
-        r = self.get(self.search_vm_url)
+        r = self.get(self.vm_search_url)
         try:
             return r['vms'][0]['guestInfo']['ips']['ips'][0]['address']
         except KeyError as e:
@@ -267,13 +304,13 @@ class Guest(Connect):
 
     def verify(self, assertion):
         """General function to verify stages of VM
-           assertion is one of create|up|down
+           assertion is one of new|up|down
         """
         max_attempts = 40
         sleep_interval = 15 
         for attempt in range(1, max_attempts+1):
             try:
-                if assertion in "create":
+                if assertion in "new":
                     assert self.status == "down", "Creating VM"
                 elif assertion in "up":
                     assert self.status == "up", "powering up"
@@ -300,12 +337,15 @@ class Guest(Connect):
     def status(self):
         """Guest status (up, down, wait for launch, etc)
         """
-        r = self.get(self.search_vm_url)
+        r = self.get(self.vm_search_url)
         return r['vms'][0]['status']['state']
 
-    def create_vm_from_template(self):
-        self.post(self.post_url, self.create_vm_param)
-        while not self.verify("create"):
+    def import_template(self):
+        self.post(self.import_template_url, self.import_template_param)
+
+    def new_vm_from_template(self):
+        self.post(self.vm_post_url, self.new_vm_param)
+        while not self.verify("new"):
             pass
         else:
             self.add_nic()
@@ -316,22 +356,18 @@ class Guest(Connect):
             self.print_ip()
 
     def add_nic(self):
-        url = self.host + self.nic_url
-        r = self.post(url, self.add_nic_param)
+        r = self.post(self.nic_url, self.add_nic_param)
         assert r['active'] is True
         logging.info("Successfully added network interface (NIC): %s %s" %
                     (r['name'], r['mac']['address']))
 
     def start(self):
-        url = self.host + self.start_url
-        r = self.post(url, self.null_param)
-        #print self.pretty_json(r)
+        r = self.post(self.start_url, self.null_param)
         assert r['status']['state'] == "complete"
         logging.info("Successfully requested guest start")
 
     def stop(self):
-        url = self.host + self.stop_url
-        r = self.post(url, self.null_param)
+        r = self.post(self.stop_url, self.null_param)
         assert r['status']['state'] == "complete"
         logging.info("Successfully requested guest stop")
 
@@ -339,8 +375,12 @@ class Guest(Connect):
 def main():
     vm = Guest()
 
-    if vm.action == "create":
-        vm.create_vm_from_template()
+    if vm.action == "import":
+        vm.import_template()
+        # TODO: verify
+
+    elif vm.action == "new_vm":
+        vm.new_vm_from_template()
 
     elif vm.action == "add_nic":
         vm.add_nic()
