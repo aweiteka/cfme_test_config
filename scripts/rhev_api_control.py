@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 # Control RHEVM via api
+# * import template from export domain
 # * create new guest from template
 # * add network interface (nic)
 # * start and stop guest
@@ -21,14 +22,13 @@ import time
 import requests
 import urllib
 import logging
-import inspect
 
 
 class Connect(object):
     def __init__(self):
-        logfile = "rhev_api.log"
+        #logfile = "rhev_api.log"
         logger = logging.getLogger()
-        fh = logging.FileHandler(logfile, mode='w')
+        fh = logging.FileHandler(self.logfile, mode='w')
         formatter = logging.Formatter("%(asctime)s %(levelname)s: %(message)s",
                                       "%b %d %H:%M:%S")
         fh.setFormatter(formatter)
@@ -59,6 +59,9 @@ class Connect(object):
                           help="RHEVM username", metavar="USER")
         parser.add_option("-p", "--pass", dest="passwd",
                           help="RHEVM password", metavar="PASS")
+        parser.add_option("-l", "--logfile", dest="logfile", 
+                          default="rhev_api.log",
+                          help="Log filename", metavar="LOGFILE")
         parser.add_option("-d", "--debug",
                           action="store_true", dest="debug",
                           help="Turn on debug-level logging")
@@ -68,6 +71,7 @@ class Connect(object):
         return options
 
     def validate_args(self, parser, options):
+        # TODO: improve validation for 'import' action
         mandatories = ['host', 'vm_name', 'action', 'user', 'passwd']
         for m in mandatories:
             if not options.__dict__[m]:
@@ -84,12 +88,13 @@ class Connect(object):
         [-t <template_name>]
         -u <rhevm_user>
         -p <rhevm_passwd>
+        [-l <logfile>]
         [-d]
 
    Action 'new_vm' will create <vm_name> from <template_name>, add a NIC
    on default RHEVM network, start guest and return IP address when running.
    
-   Action 'import' will import OVF template from export domain."""
+   Action 'import' will import OVF template from export domain and exit."""
 
     @property
     def host(self):
@@ -107,6 +112,10 @@ class Connect(object):
     def debug(self):
         return self.opts.debug
 
+    @property
+    def logfile(self):
+        return self.opts.logfile
+
     def pretty_json(self, j):
         return json.dumps(j, sort_keys=True, indent=4, separators=(',', ': '))
 
@@ -121,7 +130,8 @@ class Connect(object):
             if self.success(r):
                 j = r.json
                 logging.debug(self.pretty_json(j))
-                #assert len(j['vms']) == 1, "Unexpected number of VMs returned in search"
+                if self.action != "import":
+                    assert len(j['vms']) == 1, "Unexpected number of VMs returned in search"
                 return j
         except KeyError as e:
             logging.exception("No VMs reaturned in search. Broaden vm_name with wildcard '-v %s*' and retry?" % (self.vm_name))
@@ -140,7 +150,6 @@ class Connect(object):
                               verify=False,
                               data=payload)
             if self.success(r):
-                print r.request
                 j = r.json
                 logging.debug(self.pretty_json(j))
                 return j
