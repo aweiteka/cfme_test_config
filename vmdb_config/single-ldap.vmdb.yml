@@ -1,26 +1,3 @@
-#
-#  Copyright (c) 2007-2012 ManageIQ, Inc. All rights reserved.
-#
-# NOTE: Please do not hand edit this file.
-#
-# Accepted values for some settings:
-#   authentication:
-#     mode: ldap, database, none
-#   log:
-#     level: fatal, error, warn, info, debug
-#   server:
-#     session_store: cache, memory, sql
-#   web_services:
-#     mode: invoke, disable
-#
-# Explanations for some settings:
-#   session:
-#     interval: Time interval for checking for inactive sessions, in seconds
-#     timeout: Time period in which inactive console sessions are deleted, in seconds
-#   server:
-#     listening_port: Tells vmdb the port number on which the web server is listening.
-#                     NOTE: This does not assign the listen_port.
-#
 ---
 authentication:
   basedn: dc=ad,dc=cloudqe,dc=bos,dc=redhat,dc=com
@@ -41,7 +18,7 @@ authentication:
 coresident_miqproxy:
   concurrent_per_ems: 1
   concurrent_per_host: 1
-  scan_via_host: true
+  scan_via_host: false
   use_vim_broker: true
 database:
   metrics_collection:
@@ -52,6 +29,8 @@ database:
     :keep_hourly_metrics: 6.months
     :purge_schedule: 50 * * * *
     :purge_window_size: 100000
+ldap_synchronization:
+  ldap_synchronization_schedule: 0 2 * * *
 drift_states:
   history:
     :keep_drift_states: 6.months
@@ -97,7 +76,7 @@ log:
       - VERSION
     :ping_depot: true
     :ping_depot_timeout: 20
-  level: debug
+  level: info
   level_rails: info
   level_rhevm: info
   level_rhevm_in_evm: error
@@ -155,11 +134,11 @@ repository_scanning:
   defaultsmartproxy: 
 server:
   case_sensitive_name_search: false
-  company: Acme
+  company: Redhat
   custom_logo: false
   events:
     :disk_usage_gt_percent: 80
-  host: 10.16.120.137
+  host: 10.16.120.188
   listening_port: '443'
   log_network_address: any
   mks_classid: 338095E4-1806-4BA3-AB51-38A3179200E9
@@ -167,7 +146,7 @@ server:
   name: EVM
   remote_console_type: VMRC
   restore_points_to_keep: 2
-  role: automate,database_operations,ems_inventory,ems_operations,event,notifier,reporting,scheduler,smartproxy,smartstate,storage_inventory,user_interface,web_services
+  role: automate,database_operations,ems_inventory,ems_metrics_collector,ems_metrics_coordinator,ems_metrics_processor,ems_operations,event,reporting,scheduler,smartproxy,smartstate,user_interface,web_services
   session_store: cache
   startup_timeout: 300
   timezone: UTC
@@ -184,7 +163,7 @@ server:
     :sync_interval: 30.minutes
     :wait_for_started_timeout: 10.minutes
   zone: default
-  hostname: 10-16-120-137.dhcp.rhq.lab.eng.bos.redhat.com
+  hostname: 10-16-120-188.rhq.lab.eng.bos.redhat.com
   vnc_proxy_address: 
   vnc_proxy_port: 
 session:
@@ -196,14 +175,14 @@ session:
 smartproxy_deploy:
   queue_timeout: 30.minutes
 smtp:
-  authentication: none
-  domain: rhq.lab.eng.bos.redhat.com
-  from: miq-evm@redhat.com
-  host: qeblade40.rhq.lab.eng.bos.redhat.com
+  authentication: login
+  domain: mydomain.com
+  from: cfadmin@cfserver.com
+  host: localhost
   password: ''
   port: '25'
   user_name: evmadmin
-  enable_starttls_auto: false
+  enable_starttls_auto: true
   openssl_verify_mode: 
 snapshots:
   create_free_percent: 100
@@ -265,6 +244,16 @@ workers:
         :poll: 15.seconds
       :event_catcher_vmware:
         :poll: 1.seconds
+      :event_catcher_openstack:
+        :poll: 15.seconds
+        :topics:
+          :nova: notifications.*
+          :cinder: notifications.*
+          :glance: notifications.*
+          :quantum: notifications.*
+        :duration: 10.seconds
+        :capacity: 50
+        :amqp_port: 5672
     :queue_worker_base:
       :defaults:
         :cpu_usage_threshold: 100.percent
@@ -302,6 +291,8 @@ workers:
         :ems_refresh_worker_microsoft:
           :poll_method: :normal
         :ems_refresh_worker_redhat:
+          :poll_method: :normal
+        :ems_refresh_worker_openstack:
           :poll_method: :normal
         :ems_refresh_worker_vmware:
           :poll_method: :normal
@@ -436,6 +427,11 @@ workers:
         - vim_performances
         - vim_performance_states
         - vim_performance_tag_values
+        - vmdb_database_metrics
+        - vmdb_databases
+        - vmdb_indexes
+        - vmdb_metrics
+        - vmdb_tables
         :options:
           :replication_trace: false
     :schedule_worker:
@@ -497,6 +493,6 @@ workers:
       :poll: 60.seconds
 ntp:
   server:
-  - 0.us.pool.ntp.org
-  - 1.us.pool.ntp.org
-  - 2.us.pool.ntp.org
+  - 0.fedora.pool.ntp.org
+  - 1.fedora.pool.ntp.org
+  - 2.fedora.pool.ntp.org
